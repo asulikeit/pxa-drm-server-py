@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pxa-drm-server"
+version = "0.1.0"
+description = "파일 암복호화 API 서버 (pxa-common 기반)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+dependencies = [
+    "pxa-common==0.1.1",
+    "fastapi==0.128.0",
+    "uvicorn[standard]>=0.30",
+    "python-multipart>=0.0.9",
+    "boto3>=1.34",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "httpx>=0.27"]
+
+[project.scripts]
+pxa-drm-server = "pxa_drm_server.main:run"
+
+[tool.setuptools.packages.find]
+include = ["pxa_drm_server*"]
+
+[tool.setuptools.package-data]
+pxa_drm_server = ["messages/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

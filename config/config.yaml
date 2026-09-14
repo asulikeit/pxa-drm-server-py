@@ -1,0 +1,55 @@
+# =====================================================================
+# pxa-drm-server 설정
+#   우선순위: 환경변수(PXA_*) > 이 파일 > 기본값
+#   파일 경로 지정: PXA_CONFIG=config/config.yaml
+#   환경변수 형식: PXA_<섹션>__<키>  (예: PXA_SERVER__PORT=9000)
+# =====================================================================
+
+app:
+  name: "pxa-drm-server"
+  debug: false
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 1
+  reload: false
+
+logging:
+  dir: "./logs"
+  level: "INFO"
+  filename: "drm-server.log"
+  rotate_when: "midnight"
+  backup_count: 14
+
+# 개발자가 작성한 도메인 모듈과 작업 방식
+drm:
+  domain_module: "domain_core"   # import 할 모듈명
+  # domain_file: "./domain_core.py"   # 파일 경로로 직접 지정할 때(우선 적용)
+  work_dir: null                 # 임시 작업 디렉토리(null 이면 OS 임시 디렉토리)
+  max_upload_size_mb: 512        # 첨부파일 허용 크기(0 이하면 제한 없음)
+  upload_response: "file"        # 첨부파일 요청 기본 응답: file | json
+
+# filepath(서버 로컬 경로) 처리
+local:
+  allowed_roots: []              # 비우면 모든 경로 허용. 예: ["/download", "/data"]
+  in_place: false                # false: 작업본 처리 후 원자적 교체(권장)
+
+# S3 호환 오브젝트 스토리지. uri 의 "ABC:download/file.docx" 에서 ABC 가 별칭이다.
+storage:
+  buckets:
+    ABC:
+      bucket: "abc-bucket"
+      endpoint_url: "https://s3.example.com"
+      region: "us-east-1"
+      addressing_style: "path"   # MinIO/Ceph 등 S3 호환 스토리지는 path 권장
+      verify_ssl: true
+      # 접근키는 파일에 두지 말고 환경변수로 주입하는 것을 권장한다.
+      #   PXA_STORAGE__BUCKETS__ABC__ACCESS_KEY=...
+      #   PXA_STORAGE__BUCKETS__ABC__SECRET_KEY=...
+      access_key: ""
+      secret_key: ""
+
+# 메시지 재정의가 필요하면 YAML 경로를 추가한다(pxa-common 메시지 카탈로그).
+messages:
+  files: []
