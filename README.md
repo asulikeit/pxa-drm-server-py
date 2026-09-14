@@ -18,19 +18,35 @@ def check(filepath: str) -> bool:     # 암호화되어 있으면 True (파일 �
 ## 1. 빠르게 실행하기
 
 ```bash
-pip install -r requirements.txt          # 또는: pip install -e ".[dev]"
+pip install pxa-drm-server
+
+pxa-drm-server init          # domain_core.py 와 config/config.yaml 을 만든다
 
 # domain_core.py 의 세 함수를 실제 DRM 모듈 호출로 바꾼다 (기본은 동작 확인용 샘플)
 
-PXA_CONFIG=config/config.yaml python -m pxa_drm_server
-# 또는
 PXA_CONFIG=config/config.yaml pxa-drm-server
-# 또는
-PXA_CONFIG=config/config.yaml uvicorn pxa_drm_server.main:app --host 0.0.0.0 --port 8000
+```
+
+저장소를 직접 받아서 쓸 때는 `pip install -e ".[dev]"` 로 설치하면
+`domain_core.py` 와 `config/config.yaml` 이 이미 들어 있으므로 `init` 없이 바로 실행된다.
+
+실행 방법은 세 가지 모두 같다.
+
+```bash
+PXA_CONFIG=config/config.yaml pxa-drm-server
+PXA_CONFIG=config/config.yaml python -m pxa_drm_server
+PXA_CONFIG=config/config.yaml uvicorn pxa_drm_server.asgi:app --host 0.0.0.0 --port 8000
 ```
 
 - Swagger UI: `http://localhost:8000/docs`
 - 상태 확인: `GET /api/v1/health`
+
+### CLI
+
+| 명령 | 설명 |
+|---|---|
+| `pxa-drm-server` | 서버 실행 (`run` 과 동일) |
+| `pxa-drm-server init [--dir DIR] [--force]` | 시작 템플릿 생성. 이미 있는 파일은 건너뛰고, `--force` 면 덮어쓴다 |
 
 ---
 
@@ -216,13 +232,15 @@ domain_core.py              # ★ 개발자가 작성하는 유일한 파일
 config/config.yaml          # 설정 (접근키는 환경변수 권장)
 pxa_drm_server/
   app.py                    # FastAPI 앱 조립 (로깅/예외/미들웨어/라우터)
-  main.py                   # 실행 진입점
+  asgi.py                   # ASGI 진입점 (uvicorn 이 잡는 app)
+  main.py                   # CLI 진입점 (run / init)
   api/v1/routes.py          # encrypt / decrypt / check / health
   service.py                # 공통 처리 흐름
   domain.py                 # domain_core 로딩 및 호출
   sources/                  # 대상별 입출력 (local / objectstorage / upload)
   config.py  codes.py  errors.py  runtime.py  workspace.py
   messages/drm.yaml         # 메시지 카탈로그
+  templates/                # init 이 복사하는 시작 템플릿
 tests/
 ```
 
@@ -232,3 +250,24 @@ tests/
 pip install -e ".[dev]"
 pytest
 ```
+
+## 8. 배포 (PyPI)
+
+```bash
+pip install build twine
+
+rm -rf dist build *.egg-info
+python -m build              # dist/ 에 sdist + wheel 생성
+twine check dist/*
+
+twine upload --repository testpypi dist/*    # 먼저 TestPyPI 로 확인
+twine upload dist/*                          # PyPI 업로드
+```
+
+- 버전은 `pyproject.toml` 의 `project.version` 한 곳에서 관리한다.
+  `pxa_drm_server.__version__` 은 설치된 패키지 메타데이터에서 읽으므로 따로 고칠 필요가 없다
+  (`tests/test_packaging.py` 가 둘이 어긋나지 않는지 검사한다).
+- PyPI 는 같은 버전을 다시 올릴 수 없다. 올린 뒤 고칠 것이 생기면 `0.1.1` 로 올려서 배포한다.
+- 인증은 API 토큰을 쓴다(`~/.pypirc` 또는 `TWINE_USERNAME=__token__`, `TWINE_PASSWORD=pypi-...`).
+- `domain_core.py` 와 `config/config.yaml` 은 패키지에 직접 담기지 않고
+  `pxa_drm_server/templates/` 로 들어가 `init` 이 꺼내 준다.

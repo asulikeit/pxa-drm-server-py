@@ -1,0 +1,8 @@
+include LICENSE
+include README.md
+include requirements.txt
+include domain_core.py
+include config/config.yaml
+recursive-include pxa_drm_server *.yaml
+recursive-include tests *.py
+global-exclude __pycache__/* *.py[cod]
