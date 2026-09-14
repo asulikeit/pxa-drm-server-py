@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pxa-drm-server"
+version = "0.1.0"
+description = "파일 암복호화 API 서버 — domain_core 세 함수만 구현하면 되는 FastAPI 기반 DRM 서버 (pxa-common)"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Kwanghyun Daniel Lee" }]
+keywords = ["pxa", "drm", "encryption", "decryption", "fastapi", "s3", "api-server"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "Natural Language :: Korean",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+dependencies = [
+    "pxa-common==0.1.1",
+    "fastapi==0.128.0",
+    "uvicorn[standard]>=0.30",
+    "python-multipart>=0.0.9",
+    "boto3>=1.34",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "httpx>=0.27"]
+
+[project.urls]
+Homepage = "https://github.com/asulikeit/pxa-drm-server-py"
+Repository = "https://github.com/asulikeit/pxa-drm-server-py"
+Issues = "https://github.com/asulikeit/pxa-drm-server-py/issues"
+
+[project.scripts]
+pxa-drm-server = "pxa_drm_server.main:main"
+
+[tool.setuptools.packages.find]
+include = ["pxa_drm_server*"]
+
+[tool.setuptools.package-data]
+pxa_drm_server = ["messages/*.yaml", "templates/*.py", "templates/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
