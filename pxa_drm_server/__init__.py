@@ -14,12 +14,13 @@ REST API / 로깅 / 에러처리 / 표준 응답 / 오브젝트 스토리지 입
 """
 from importlib.metadata import PackageNotFoundError, version as _version
 
-from .app import create_app
-from .codes import DrmCode
-
 try:
     __version__ = _version("pxa-drm-server")
 except PackageNotFoundError:      # 설치 없이 소스에서 바로 쓰는 경우
     __version__ = "0.0.0.dev0"
+
+# app 이 __version__ 을 쓰므로 버전을 정한 뒤에 import 한다.
+from .app import create_app  # noqa: E402
+from .codes import DrmCode  # noqa: E402
 
 __all__ = ["create_app", "DrmCode", "__version__"]

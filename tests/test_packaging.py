@@ -1,6 +1,7 @@
 """배포(PyPI) 구성 검증."""
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import tomllib
@@ -53,11 +54,14 @@ def test_init_creates_starter_files(tmp_path):
 
 def test_cli_help_works_without_domain_core(tmp_path):
     """domain_core.py 가 없는 디렉토리에서도 CLI 가 동작해야 한다."""
+    # 도움말에 한글이 있으므로 OS 로캘(예: Windows cp949)과 무관하게 UTF-8 로 주고받는다.
+    env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
     result = subprocess.run(
         [sys.executable, "-m", "pxa_drm_server", "--help"],
         cwd=tmp_path,
         capture_output=True,
-        text=True,
+        encoding="utf-8",
+        env=env,
         timeout=60,
     )
     assert result.returncode == 0, result.stderr

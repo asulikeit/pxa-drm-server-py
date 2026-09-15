@@ -25,6 +25,7 @@ from pxa_common import (
 )
 from pxa_common.fastapi import FastAPI
 
+from . import __version__
 from .api.v1 import router as v1_router
 from .runtime import build_runtime
 
@@ -65,7 +66,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=app_cfg.name,
         description="파일 암복호화 API 서버 (pxa-common 기반)",
-        version="0.1.0",
+        version=__version__,
         debug=app_cfg.debug,
         lifespan=lifespan,
     )
